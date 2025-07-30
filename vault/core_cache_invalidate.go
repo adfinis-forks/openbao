@@ -13,6 +13,13 @@ import (
 )
 
 func (c *Core) Invalidate(key string) {
+	c.logger.Info("core.Invalidate", "key", key)
+
+	if c.activeContext == nil {
+		c.logger.Info("can not core.Invalidate, activeContext == nil", "key", key)
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(c.activeContext, 2*time.Second)
 	defer cancel()
 

@@ -166,6 +166,8 @@ func (b *versionedKVBackend) pathDataRead() framework.OperationFunc {
 			return nil, err
 		}
 
+		b.Logger().Info("getting versioned key", "versionedKey", versionKey)
+
 		raw, err := req.Storage.Get(ctx, versionKey)
 		if err != nil {
 			return nil, err
@@ -355,6 +357,8 @@ func (b *versionedKVBackend) pathDataWrite() framework.OperationFunc {
 		}); err != nil {
 			return nil, err
 		}
+
+		b.Logger().Info("putting versioned key", "versionedKey", versionKey)
 
 		// Add version to the key metadata and calculate version to delete
 		// based on the max_versions specified by either the secret's key

@@ -209,8 +209,11 @@ type RaftBackend struct {
 // HookInvalidate implements physical.CacheInvalidationBackend.
 func (r *RaftBackend) HookInvalidate(hook physical.InvalidateFunc) {
 	r.fsm.hookInvalidate(func(key string) {
-		_, leaderId := r.raft.LeaderWithID()
-		if r.localID != string(leaderId) {
+		r.logger.Info("r.raft", "value", r.raft)
+		if r.raft == nil {
+			return
+		}
+		if r.raft.State() != raft.Leader {
 			hook(key)
 		}
 	})

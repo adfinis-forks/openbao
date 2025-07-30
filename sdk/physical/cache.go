@@ -212,6 +212,7 @@ func (c *cache) Put(ctx context.Context, entry *Entry) error {
 		}
 		c.lru.Add(entry.Key, cacheEntry)
 		c.metricSink.IncrCounter([]string{"cache", "write"}, 1)
+		c.logger.Info("cache write", "key", entry.Key, "value", entry.Value)
 	}
 	return err
 }
@@ -232,11 +233,13 @@ func (c *cache) Get(ctx context.Context, key string) (*Entry, error) {
 				return nil, nil
 			}
 			c.metricSink.IncrCounter([]string{"cache", "hit"}, 1)
+			c.logger.Info("cache hit", "key", key, "value", raw)
 			return raw, nil
 		}
 	}
 
 	c.metricSink.IncrCounter([]string{"cache", "miss"}, 1)
+	c.logger.Info("cache miss", "key", key)
 	// Read from the underlying backend
 	ent, err := c.backend.Get(ctx, key)
 	if err != nil {
@@ -351,6 +354,7 @@ func (c *cacheTransaction) Put(ctx context.Context, entry *Entry) error {
 		c.modified[entry.Key] = struct{}{}
 		c.modifiedLock.Unlock()
 		c.metricSink.IncrCounter([]string{"cache", "write"}, 1)
+		c.logger.Info("cache store", "key", entry.Key, "value", entry.Value)
 	}
 	return err
 }
@@ -419,6 +423,8 @@ func (c *cache) Invalidate(ctx context.Context, key string) {
 	lock := locksutil.LockForKey(c.locks, key)
 	lock.Lock()
 	defer lock.Unlock()
+
+	c.logger.Info("cache invalidate", "key", key)
 
 	c.lru.Remove(key)
 }

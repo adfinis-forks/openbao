@@ -17,6 +17,13 @@ func coreInit(c *Core, conf *CoreConfig) error {
 	c.physical = physical.NewCache(phys, conf.CacheSize, cacheLogger, c.MetricSink().Sink)
 	c.physicalCache = c.physical.(physical.ToggleablePurgemonster)
 
+	if cib, ok := phys.(physical.CacheInvalidationBackend); ok {
+		cib.HookInvalidate(c.Invalidate)
+		cacheLogger.Info("HookInvalidate called")
+	} else {
+		cacheLogger.Info("HookInvalidate not supported")
+	}
+
 	// Wrap in encoding checks
 	if !conf.DisableKeyEncodingChecks {
 		c.physical = physical.NewStorageEncoding(c.physical)
