@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -490,7 +491,7 @@ func (i *IdentityStore) upsertEntityInTxn(ctx context.Context, txn *memdb.Txn, e
 			return nil
 		}
 
-		if strutil.StrListContains(aliasFactors, i.sanitizeName(alias.Name)+alias.MountAccessor) {
+		if slices.Contains(aliasFactors, i.sanitizeName(alias.Name)+alias.MountAccessor) {
 			i.logger.Warn(errDuplicateIdentityName.Error(), "alias_name", alias.Name, "mount_accessor", alias.MountAccessor, "local", alias.Local, "entity_name", entity.Name, "action", "delete one of the duplicate aliases")
 			if !i.disableLowerCasedNames {
 				return errDuplicateIdentityName
@@ -1392,7 +1393,7 @@ func (i *IdentityStore) sanitizeAndUpsertGroup(ctx context.Context, group *ident
 
 	// Remove duplicate policies
 	if group.Policies != nil {
-		group.Policies = strutil.RemoveDuplicates(group.Policies, false)
+		group.Policies = strutil.RemoveDuplicates(group.Policies, true /* lowercase */)
 	}
 
 	txn := i.db(ctx).Txn(true)
@@ -1424,7 +1425,7 @@ func (i *IdentityStore) sanitizeAndUpsertGroup(ctx context.Context, group *ident
 
 	// Update parent group IDs in the removed members
 	for _, currentMemberGroupID := range currentMemberGroupIDs {
-		if strutil.StrListContains(memberGroupIDs, currentMemberGroupID) {
+		if slices.Contains(memberGroupIDs, currentMemberGroupID) {
 			continue
 		}
 
@@ -1457,7 +1458,7 @@ func (i *IdentityStore) sanitizeAndUpsertGroup(ctx context.Context, group *ident
 		}
 
 		// Skip if memberGroupID is already a member of group.ID
-		if strutil.StrListContains(memberGroup.ParentGroupIDs, group.ID) {
+		if slices.Contains(memberGroup.ParentGroupIDs, group.ID) {
 			continue
 		}
 
@@ -2433,7 +2434,7 @@ func (i *IdentityStore) handleAliasListCommon(ctx context.Context, groupAlias bo
 // countEntities returns the sum of all entities across all namespaces.
 func (i *IdentityStore) countEntities(ctx context.Context) (int, error) {
 	var count int
-	var err error
+	var outErr error
 	i.views.Range(func(uuidRaw, viewsRaw any) bool {
 		uuid := uuidRaw.(string)
 		views := viewsRaw.(*identityStoreNamespaceView)
@@ -2442,7 +2443,7 @@ func (i *IdentityStore) countEntities(ctx context.Context) (int, error) {
 
 		iter, err := txn.Get(entitiesTable, "id")
 		if err != nil {
-			err = fmt.Errorf("failed to get entities table for namespace %v: %w", uuid, err)
+			outErr = fmt.Errorf("failed to get entities table for namespace %v: %w", uuid, err)
 			return false
 		}
 
@@ -2455,8 +2456,8 @@ func (i *IdentityStore) countEntities(ctx context.Context) (int, error) {
 		return true
 	})
 
-	if err != nil {
-		return -1, err
+	if outErr != nil {
+		return -1, outErr
 	}
 
 	return count, nil
@@ -2487,7 +2488,6 @@ func (i *IdentityStore) countEntitiesByNamespace(ctx context.Context) (map[strin
 				err = fmt.Errorf("context cancelled during namespace %v", uuid)
 				return false
 			default:
-				break
 			}
 
 			// Count in the namespace attached to the entity.
@@ -2531,7 +2531,6 @@ func (i *IdentityStore) countEntitiesByMountAccessor(ctx context.Context) (map[s
 				err = fmt.Errorf("context cancelled during namespace %v", uuid)
 				return false
 			default:
-				break
 			}
 
 			// Count each alias separately; will translate to mount point and type

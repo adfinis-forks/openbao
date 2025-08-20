@@ -3842,7 +3842,7 @@ func TestReadWriteDeleteRoles(t *testing.T) {
 	}
 
 	if resp != nil {
-		t.Fatalf("response should have been emtpy but was:\n%#v", resp)
+		t.Fatalf("response should have been empty but was:\n%#v", resp)
 	}
 
 	// Write role PKI.
@@ -3948,9 +3948,6 @@ func setCerts() {
 		Bytes: marshaledKey,
 	}
 	ecCAKey = strings.TrimSpace(string(pem.EncodeToMemory(keyPEMBlock)))
-	if err != nil {
-		panic(err)
-	}
 	subjKeyID, err := certutil.GetSubjKeyID(cak)
 	if err != nil {
 		panic(err)
@@ -3987,9 +3984,6 @@ func setCerts() {
 		Bytes: marshaledKey,
 	}
 	rsaCAKey = strings.TrimSpace(string(pem.EncodeToMemory(keyPEMBlock)))
-	if err != nil {
-		panic(err)
-	}
 	_, err = certutil.GetSubjKeyID(rak)
 	if err != nil {
 		panic(err)
@@ -4017,9 +4011,6 @@ func setCerts() {
 		Bytes: marshaledKey,
 	}
 	edCAKey = strings.TrimSpace(string(pem.EncodeToMemory(keyPEMBlock)))
-	if err != nil {
-		panic(err)
-	}
 	_, err = certutil.GetSubjKeyID(edk)
 	if err != nil {
 		panic(err)
@@ -4809,7 +4800,7 @@ func requireCertInCaChainArray(t *testing.T, chain []string, cert string, msgAnd
 func requireCertInCaChainString(t *testing.T, chain string, cert string, msgAndArgs ...interface{}) {
 	count := strings.Count(chain, cert)
 	if count != 1 {
-		failMsg := fmt.Sprintf("Found %d occurrances of the cert in the provided chain", count)
+		failMsg := fmt.Sprintf("Found %d occurrences of the cert in the provided chain", count)
 		require.FailNow(t, failMsg, msgAndArgs...)
 	}
 }

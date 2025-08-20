@@ -60,6 +60,7 @@ const sidebars: SidebarsConfig = {
                 "concepts/tokens",
                 "concepts/identity",
                 "concepts/oidc-provider",
+                "concepts/profiles",
                 "concepts/response-wrapping",
                 "concepts/policies",
                 "concepts/password-policies",
@@ -80,8 +81,20 @@ const sidebars: SidebarsConfig = {
                 "concepts/duration-format",
                 "concepts/user-lockout",
             ],
+            Guides: [
+                {
+                    Unsealing: [
+                        {
+                            "PKCS#11": [
+                                "guides/unseal/pkcs11/securosys"
+                            ]
+                        }
+                    ]
+                }
+            ],
             Configuration: [
                 "configuration/index",
+                "configuration/self-init",
                 {
                     listener: [
                         "configuration/listener/index",
@@ -175,9 +188,11 @@ const sidebars: SidebarsConfig = {
                         "commands/operator/raft",
                         "commands/operator/rekey",
                         "commands/operator/rotate",
+                        "commands/operator/rotate-keys",
                         "commands/operator/seal",
                         "commands/operator/step-down",
                         "commands/operator/unseal",
+                        "commands/operator/validate-config",
                     ],
                 },
                 "commands/patch",
@@ -514,6 +529,10 @@ const sidebars: SidebarsConfig = {
                 "rfcs/inline-auth",
                 "rfcs/authenticated-rekey",
                 "rfcs/self-init",
+                "rfcs/external-keys",
+                {
+                  "UI/UX": ["rfcs/web-ui-modernization"],
+                },
             ],
             FAQ: ["faq/index", "deprecation/faq", "auth/login-mfa/faq"],
         },
