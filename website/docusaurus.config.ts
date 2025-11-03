@@ -118,7 +118,6 @@ const config: Config = {
         id: "ecosystem",
         path: "content/ecosystem",
         routeBasePath: "ecosystem",
-        //sidebarPath: "./sidebarsEcosystem.ts",
         editUrl: "https://github.com/openbao/openbao/tree/main/website/",
         beforeDefaultRemarkPlugins: [
           [
